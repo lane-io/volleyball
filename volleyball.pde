@@ -2,7 +2,7 @@ import fisica.*;
 
 FWorld world;
 
-FBox leftWall, leftFloor, rightWall, rightFloor, net;
+FBox leftWall, leftFloor, rightWall, rightFloor, net, ceiling;
 FCircle leftPlayer, rightPlayer, ball;
 //FBlob leftPlayer, rightPlayer;
 //FCircle ball;
@@ -16,7 +16,7 @@ boolean upkey, leftkey, downkey, rightkey;
 
 int mode;
 
-PImage background;
+PImage background, leftGameOver, rightGameOver;
 
 final int game = 0;
 final int gameover1 = 1;
@@ -26,6 +26,8 @@ void setup() {
   size(800, 600);
 
   background = loadImage ("volleyballBackground.png");
+  leftGameOver = loadImage ("leftPlayerBackground.png");
+  rightGameOver = loadImage ("rightPlayerBackground.png");
 
   ballPositionPicker = random(0, 2);
 
@@ -37,7 +39,7 @@ void setup() {
 
   Fisica.init(this);
   world = new FWorld();
-  world.setGravity(0, 900);
+  world.setGravity(0, 2000);
 
   leftWall = new FBox (50, 600);
   leftWall.setPosition (-25, 300);
@@ -65,6 +67,12 @@ void setup() {
   rightFloor.setFriction(0.1);
   world.add(rightFloor);
 
+  ceiling = new FBox (900, 50);
+  ceiling.setPosition (-50, -50);
+  ceiling.setStatic(true);
+  ceiling.setFill(0);
+  world.add(ceiling);
+
   net = new FBox (5, 90);
   net.setPosition (400, 475);
   net.setStatic(true);
@@ -75,16 +83,20 @@ void setup() {
   ball.setPosition (ballPosition, 200);
   noStroke();
   ball.setFill(255);
+  ball.setDensity(0.5);
+  ball.setRestitution(1.0);
   world.add(ball);
 
   leftPlayer = new FCircle (70);
   leftPlayer.setPosition (200, 400);
   leftPlayer.setFill(0);
+  leftPlayer.setRestitution(0.7);
   world.add(leftPlayer);
 
   rightPlayer = new FCircle (70);
   rightPlayer.setPosition (600, 400);
   rightPlayer.setFill(0);
+  rightPlayer.setRestitution(0.7);
   world.add(rightPlayer);
 
   //leftPlayer = new FBlob ();
@@ -139,9 +151,10 @@ void game() {
     i++;
   }
 
-  if (wkey && leftCanJump) leftPlayer.addImpulse(0, -5000);
-  if (akey) leftPlayer.addImpulse(-100, 0);
-  if (dkey) leftPlayer.addImpulse(100, 0);
+  if (wkey && leftCanJump) leftPlayer.addImpulse(0, -6500);
+  if (akey) leftPlayer.addImpulse(-500, 0);
+  if (dkey) leftPlayer.addImpulse(500, 0);
+  if (skey) leftPlayer.addImpulse(0, 1000);
 
   rightCanJump = false;
   ArrayList<FContact> rightContacts = rightPlayer.getContacts();
@@ -153,9 +166,10 @@ void game() {
     i2++;
   }
 
-  if (upkey && rightCanJump) rightPlayer.addImpulse(0, -5000);
-  if (leftkey) rightPlayer.addImpulse(-100, 0);
-  if (rightkey) rightPlayer.addImpulse(100, 0);
+  if (upkey && rightCanJump) rightPlayer.addImpulse(0, -6500);
+  if (leftkey) rightPlayer.addImpulse(-500, 0);
+  if (rightkey) rightPlayer.addImpulse(500, 0);
+  if (downkey) rightPlayer.addImpulse(0, 1000);
 
   ArrayList<FContact> rightScoreContacts = ball.getContacts();
 
@@ -189,6 +203,14 @@ void game() {
     i4++;
   }
 
+  if (leftPlayer.getX() >= 365) {
+    leftPlayer.setPosition (365, leftPlayer.getY());
+  }
+
+  if (rightPlayer.getX() <= 435) {
+    rightPlayer.setPosition (435, rightPlayer.getY());
+  }
+
   if (leftScore == 5) {
     mode = gameover1;
     leftScore = 0;
@@ -209,9 +231,11 @@ void gameover1() {
 
   background(255, 255, 255, 100);
 
+  image(leftGameOver, 0, -170, width, width);
+
   textAlign(CENTER);
   textSize(15);
-  fill(0);
+  fill(255);
   text("GOOD JOB LEFT PLAYER", width/2, height/2);
 }
 
@@ -219,8 +243,10 @@ void gameover2() {
 
   background(255, 255, 255, 100);
 
+  image(rightGameOver, 0, -70, width, width);
+  
   textAlign(CENTER);
   textSize(15);
-  fill(0);
+  fill(255);
   text("GOOD JOB RIGHT PLAYER", width/2, height/2);
 }
