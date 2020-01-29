@@ -21,3 +21,11 @@ void keyReleased() {
   if (keyCode == RIGHT) rightkey = false;
   if (keyCode == DOWN) downkey = false;
 }
+
+void mouseReleased() {
+  if (mode == gameover1) {
+    mode = game;
+  } else if (mode == gameover2) {
+    mode = game;
+  }
+}
